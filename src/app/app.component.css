@@ -1,0 +1,501 @@
+.sidenav-container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+}
+
+.sidenav {
+  display: flex;
+  flex-direction: column;
+  min-width: 280px;
+  width: 280px;
+  background: linear-gradient(to bottom, #ff6600, #b71c1c);
+  color: white;
+  transition: width 0.3s ease, padding 0.3s ease;
+  box-sizing: border-box;
+  height: calc(100% - 64px);
+  margin-top: 64px; /* Space for fixed toolbar */
+}
+
+.sidenav.minimized {
+  min-width: 64px;
+  width: 64px;
+  padding: 0;
+}
+
+/* Hide unnecessary elements when minimized on desktop */
+.sidenav.minimized:not(.mobile) .menu-group {
+  margin-bottom: 4px;
+}
+
+.sidenav.minimized:not(.mobile) .menu-group-label,
+.sidenav.minimized:not(.mobile) .minimized-group-icon {
+  display: none;
+}
+
+.sidenav.mobile {
+  width: 280px;
+  min-width: 280px;
+}
+
+.sidebar-header {
+  padding: 16px;
+  display: flex;
+  justify-content: flex-end;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.sidenav.minimized .sidebar-header {
+  padding: 16px 8px;
+  justify-content: center;
+}
+
+.toggle-btn {
+  color: white;
+}
+
+.user-section {
+  padding: 24px 16px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.user-avatar {
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+
+.avatar-circle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 20px;
+  margin: 0 auto;
+  color: white;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.navigation-list {
+  flex: 1;
+  padding: 16px 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.sidenav.minimized .navigation-list {
+  padding: 8px 0;
+}
+
+.menu-group {
+  margin-bottom: 16px;
+}
+
+.menu-group-label {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 16px 8px;
+}
+
+.minimized-group-icon {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.menu-item a {
+  color: rgba(255, 255, 255, 0.9);
+  padding: 12px 16px;
+  border-radius: 0 24px 24px 0;
+  margin-right: 8px;
+  transition: all 0.3s ease;
+}
+
+.sidenav.minimized .menu-item a {
+  padding: 12px;
+  border-radius: 8px;
+  margin: 0 8px;
+  justify-content: center;
+}
+
+.menu-item a:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  transform: translateX(4px);
+}
+
+.sidenav.minimized .menu-item a:hover {
+  transform: none;
+}
+
+.menu-item a.mat-mdc-list-item-active {
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.menu-item a.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  margin-top: auto; /* Push to bottom */
+}
+
+/* Hide sidebar footer on desktop, show on mobile */
+@media (min-width: 769px) {
+  .sidebar-footer {
+    display: none;
+  }
+}
+
+.currency-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.currency-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  transition: background 0.3s ease;
+}
+
+.currency-item:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.currency-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.currency-icon.np {
+  color: #ffd700;
+}
+
+.currency-icon.vidas {
+  color: #ff4757;
+}
+
+.currency-icon.dna {
+  color: #a55eea;
+}
+
+.currency-value {
+  font-weight: 500;
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Force mat-sidenav-content to fill available space */
+.mat-sidenav-content {
+  margin-left: 280px !important;
+  padding-top: 64px !important; /* Space for fixed toolbar */
+  transition: margin-left 0.3s ease !important;
+}
+
+.sidenav.minimized ~ .mat-sidenav-content {
+  margin-left: 64px !important;
+}
+
+mat-sidenav-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Toolbar styles with higher specificity */
+mat-toolbar.toolbar {
+  background: linear-gradient(90deg, #ff6600, #ff8533) !important;
+  color: white !important;
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1100; /* Higher than sidebar */
+  height: 64px;
+}
+
+mat-toolbar.toolbar mat-icon {
+  color: white !important;
+}
+
+mat-toolbar.toolbar button {
+  color: white !important;
+}
+
+.toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1100;
+  background: linear-gradient(90deg, #ff6600, #ff8533) !important;
+  color: white;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.toolbar.mat-toolbar {
+  background: linear-gradient(90deg, #ff6600, #ff8533) !important;
+  color: white;
+}
+
+.toolbar .mat-toolbar {
+  background: transparent;
+  width: 100%;
+  color: white;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
+
+mat-toolbar.toolbar .toolbar-content {
+  padding-left: 296px; /* 280px sidebar + 16px padding */
+  padding-right: 16px;
+  transition: padding-left 0.3s ease;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+/* Desktop specific adjustments */
+.sidenav-container.desktop mat-toolbar.toolbar .toolbar-content {
+  padding-left: 296px; /* 280px sidebar + 16px padding */
+  transition: padding-left 0.3s ease;
+}
+
+.sidenav-container.desktop .sidenav.minimized ~ .mat-sidenav-content mat-toolbar.toolbar .toolbar-content {
+  padding-left: 80px; /* 64px sidebar + 16px padding */
+}
+
+.toolbar-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.toolbar-content > span:first-of-type {
+  font-size: 20px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.menu-toggle {
+  margin-right: 16px;
+  color: white !important;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.toolbar-currencies {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-right: 16px;
+}
+
+/* Force show currencies on desktop */
+@media (min-width: 769px) {
+  .toolbar-currencies {
+    display: flex !important;
+  }
+  
+  /* Responsive adjustments for smaller desktop screens */
+  @media (max-width: 1400px) {
+    .toolbar-currencies {
+      gap: 12px;
+    }
+    
+    .toolbar-currency-item {
+      padding: 3px 6px;
+    }
+    
+    .toolbar-currency-item .currency-value {
+      font-size: 12px;
+    }
+  }
+}
+
+.toolbar-currency-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  padding: 4px 8px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.2);
+  transition: background 0.3s ease;
+  color: white;
+}
+
+.toolbar-currency-item:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.toolbar-currency-item .currency-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.toolbar-currency-item .currency-value {
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.user-menu-button {
+  color: white !important;
+}
+
+.user-menu-button mat-icon {
+  color: white !important;
+}
+
+.content-wrapper {
+  flex: 1;
+  padding: 24px;
+  background: #f8f9fa;
+  min-height: calc(100vh - 64px);
+  width: 100%;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+/* Prevent horizontal scroll on body and html */
+:host,
+:host ::ng-deep html,
+:host ::ng-deep body {
+  overflow-x: hidden !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  mat-toolbar.toolbar .toolbar-content {
+    padding-left: 8px !important; /* Reset padding on mobile */
+    padding-right: 8px !important;
+  }
+  
+  .sidenav {
+    position: fixed;
+    z-index: 1200; /* Higher than toolbar on mobile */
+    height: 100%;
+    box-shadow: 2px 0 6px rgba(0, 0, 0, 0.2);
+    margin-top: 0; /* Full height on mobile */
+  }
+
+  .main-content {
+    width: 100%;
+  }
+  
+  .mat-sidenav-content {
+    margin-left: 0 !important;
+    padding-top: 64px !important; /* Space for fixed toolbar */
+  }
+
+  .toolbar {
+    padding-left: 8px;
+    padding-right: 8px;
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    right: 0;
+  }
+
+  /* Hide toolbar currencies on mobile */
+  .toolbar-currencies {
+    display: none !important;
+  }
+
+  .content-wrapper {
+    padding: 16px;
+  }
+  
+  /* Show sidebar footer with currencies on mobile */
+  .sidebar-footer {
+    display: block !important;
+  }
+  
+  .currency-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .currency-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    padding: 8px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Fix for mat-drawer-backdrop */
+.mat-drawer-backdrop {
+  position: fixed;
+  z-index: 1199; /* Just below mobile sidebar */
+}
+
+/* Animation for mobile drawer */
+.sidenav.mobile {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Ensure proper layout */
+:host {
+  display: block;
+  height: 100vh;
+  overflow-x: hidden;
+}
+
+.mat-drawer-container {
+  height: 100%;
+}

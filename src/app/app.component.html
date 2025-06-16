@@ -1,0 +1,104 @@
+<mat-sidenav-container class="sidenav-container" [class.desktop]="isDesktop()">
+  <mat-sidenav #drawer class="sidenav" 
+               [attr.role]="'navigation'" 
+               [mode]="isMobile() ? 'over' : 'side'" 
+               [opened]="isMobile() ? isDrawerOpen() : true"
+               [class.minimized]="!isMobile() && isMinimized()"
+               [class.mobile]="isMobile()"
+               (closedStart)="closeMobileDrawer()">
+    
+    <div class="sidebar-header">
+      <button mat-icon-button (click)="toggleSidebar()" class="toggle-btn">
+        <mat-icon>{{ isMinimized() && !isMobile() ? 'menu' : 'menu_open' }}</mat-icon>
+      </button>
+    </div>
+
+    <div class="user-section" *ngIf="!isMinimized() || isMobile()">
+      <div class="user-avatar">
+        <div class="avatar-circle">
+          {{ getInitials() }}
+        </div>
+      </div>
+      <div class="user-name">
+        {{ userProfile.firstName }} {{ userProfile.lastName }}
+      </div>
+    </div>
+
+    <mat-nav-list class="navigation-list">
+      <div *ngFor="let item of menuItems" class="menu-group">
+        <h3 mat-subheader *ngIf="!isMinimized() || isMobile()" class="menu-group-label">
+          {{ item.label }}
+        </h3>
+
+        <div *ngFor="let child of item.children" class="menu-item">
+          <a mat-list-item 
+             [routerLink]="child.route"
+             [class.disabled]="child.disabled"
+             [matTooltip]="isMinimized() && !isMobile() ? child.label : ''"
+             matTooltipPosition="right"
+             (click)="closeMobileDrawer()">
+            <mat-icon matListItemIcon>{{ child.icon }}</mat-icon>
+            <span matListItemTitle *ngIf="!isMinimized() || isMobile()">{{ child.label }}</span>
+            <mat-icon *ngIf="child.disabled && (!isMinimized() || isMobile())" matListItemMeta>block</mat-icon>
+          </a>
+        </div>
+      </div>
+    </mat-nav-list>
+
+    <!-- Currencies in sidebar for mobile only -->
+    <div class="sidebar-footer" *ngIf="shouldShowCurrenciesInSidebar()">
+      <div class="currency-section">
+        <div *ngFor="let currency of currencies" 
+             class="currency-item" 
+             [matTooltip]="currency.label" 
+             matTooltipPosition="right">
+          <mat-icon [class]="'currency-icon ' + currency.class">{{ currency.icon }}</mat-icon>
+          <span class="currency-value">{{ currency.value }}</span>
+        </div>
+      </div>
+    </div>
+
+  </mat-sidenav>
+
+  <mat-sidenav-content class="main-content">
+    <mat-toolbar class="toolbar" color="primary">
+      <div class="toolbar-content">
+        <button mat-icon-button (click)="toggleSidebar()" class="menu-toggle" *ngIf="isMobile()">
+          <mat-icon>menu</mat-icon>
+        </button>
+        
+        <span>Raptor Frontend</span>
+        
+        <span class="spacer"></span>
+        
+        <!-- Currencies in toolbar for desktop only -->
+        <div class="toolbar-currencies" *ngIf="shouldShowCurrenciesInToolbar()">
+          <div *ngFor="let currency of currencies" 
+               class="toolbar-currency-item"
+               [matTooltip]="currency.label">
+            <mat-icon [class]="'currency-icon ' + currency.class">{{ currency.icon }}</mat-icon>
+            <span class="currency-value">{{ currency.value }}</span>
+          </div>
+        </div>
+        
+        <button mat-icon-button [matMenuTriggerFor]="menu" class="user-menu-button">
+          <mat-icon>account_circle</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item (click)="navigateTo('/profile')">
+            <mat-icon>person</mat-icon>
+            <span>Perfil</span>
+          </button>
+          <button mat-menu-item (click)="logout()">
+            <mat-icon>logout</mat-icon>
+            <span>Sair</span>
+          </button>
+        </mat-menu>
+      </div>
+    </mat-toolbar>
+
+    <div class="content-wrapper">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

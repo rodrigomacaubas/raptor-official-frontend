@@ -1,0 +1,219 @@
+@import '@angular/material/prebuilt-themes/azure-blue.css';
+
+:root {
+  --primary-gradient: linear-gradient(45deg, #ff6600, #b71c1c);
+  --primary-color: #ff6600;
+  --primary-dark: #b71c1c;
+}
+
+html, body { 
+  height: 100%; 
+}
+
+body { 
+  margin: 0; 
+  font-family: Roboto, "Helvetica Neue", sans-serif; 
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.mat-mdc-form-field {
+  width: 100%;
+}
+
+.mat-mdc-card {
+  margin: 8px;
+}
+
+.mat-mdc-button, .mat-mdc-raised-button, .mat-mdc-fab, .mat-mdc-mini-fab {
+  margin: 8px;
+}
+
+.mat-mdc-raised-button.mat-primary {
+  background: var(--primary-gradient) !important;
+  color: white !important;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.mt-16 {
+  margin-top: 16px;
+}
+
+.mb-16 {
+  margin-bottom: 16px;
+}
+
+.p-16 {
+  padding: 16px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+/* Responsive breakpoints */
+/* Extra small devices (phones, 600px and down) */
+@media only screen and (max-width: 600px) {
+  body {
+    font-size: 14px;
+  }
+  .p-16 {
+    padding: 8px;
+  }
+  .mt-16 {
+    margin-top: 8px;
+  }
+  .mb-16 {
+    margin-bottom: 8px;
+  }
+}
+
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media only screen and (min-width: 600px) {
+  body {
+    font-size: 15px;
+  }
+}
+
+/* Medium devices (landscape tablets, 768px and up) */
+@media only screen and (min-width: 768px) {
+  body {
+    font-size: 16px;
+  }
+}
+
+/* Large devices (laptops/desktops, 992px and up) */
+@media only screen and (min-width: 992px) {
+  /* Add any specific styles for large screens if needed */
+}
+
+/* Extra large devices (large laptops and desktops, 1200px and up) */
+@media only screen and (min-width: 1200px) {
+  /* Add any specific styles for extra large screens if needed */
+}
+
+
+/* Estilos para notificações de Steam Auth */
+.success-snackbar {
+  background-color: #4caf50 !important;
+  color: white !important;
+}
+
+.error-snackbar {
+  background-color: #f44336 !important;
+  color: white !important;
+}
+
+.warning-snackbar {
+  background-color: #ff9800 !important;
+  color: white !important;
+}
+
+.info-snackbar {
+  background-color: #2196f3 !important;
+  color: white !important;
+}
+
+/* Estilos para loading states */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.loading-content {
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  min-width: 200px;
+}
+
+/* Animação para o ícone de Steam */
+@keyframes steam-pulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.8; }
+}
+
+.steam-connecting {
+  animation: steam-pulse 2s infinite;
+}
+
+/* Estilos para cards de Steam */
+.steam-card {
+  border-left: 4px solid #1b2838;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.steam-card:hover {
+  box-shadow: 0 4px 12px rgba(27, 40, 56, 0.2);
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
+}
+
+/* Estilos para Steam ID */
+.steam-id-display {
+  font-family: 'Courier New', monospace;
+  background: #1b2838;
+  color: #66c0f4;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  border: 2px solid #2a475e;
+}
+
+.steam-id-display:hover {
+  background: #2a475e;
+  border-color: #66c0f4;
+}
+
+/* Responsive adjustments para Steam components */
+@media (max-width: 600px) {
+  .loading-content {
+    margin: 16px;
+    padding: 16px;
+    min-width: calc(100% - 32px);
+  }
+  
+  .steam-id-display {
+    font-size: 12px;
+    padding: 6px 8px;
+    word-break: break-all;
+  }
+}
+
+/* Snackbar styles para mensagens Steam */
+.success-snackbar {
+  background-color: #4caf50 !important;
+  color: white !important;
+}
+
+.error-snackbar {
+  background-color: #f44336 !important;
+  color: white !important;
+}

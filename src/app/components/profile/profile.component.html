@@ -1,0 +1,334 @@
+
+    <div class="profile-container">
+      <h1>Perfil do Usuário</h1>
+      
+      <mat-tab-group class="profile-tabs">
+        <!-- Tab Dados Básicos -->
+        <mat-tab label="Dados Básicos">
+          <div class="tab-content">
+            <mat-card class="profile-card">
+              <mat-card-header>
+                <div mat-card-avatar class="profile-avatar">
+                  {{ getInitials() }}
+                </div>
+                <mat-card-title>{{ userProfile.firstName }} {{ userProfile.lastName }}</mat-card-title>
+                <mat-card-subtitle>{{ userProfile.email }}</mat-card-subtitle>
+              </mat-card-header>
+              
+              <mat-card-content>
+                <mat-list>
+                  <mat-list-item>
+                    <mat-icon matListItemIcon>person</mat-icon>
+                    <div matListItemTitle>Nome de usuário</div>
+                    <div matListItemLine>{{ userProfile.username }}</div>
+                  </mat-list-item>
+                  
+                  <mat-list-item>
+                    <mat-icon matListItemIcon>email</mat-icon>
+                    <div matListItemTitle>Email</div>
+                    <div matListItemLine>{{ userProfile.email }}</div>
+                  </mat-list-item>
+                  
+                  <mat-list-item>
+                    <mat-icon matListItemIcon>verified</mat-icon>
+                    <div matListItemTitle>Email verificado</div>
+                    <div matListItemLine>{{ userProfile.emailVerified ? 'Sim' : 'Não' }}</div>
+                  </mat-list-item>
+                </mat-list>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </mat-tab>
+
+        <!-- Tab Steam -->
+        <mat-tab label="Steam">
+          <div class="tab-content">
+            <div class="section-header">
+              <h2>Contas Steam Vinculadas</h2>
+              <button mat-raised-button color="primary" (click)="connectSteam()" [disabled]="steamLoading">
+                <mat-icon>add</mat-icon>
+                Conectar Steam
+              </button>
+            </div>
+
+            <div *ngIf="steamLoading" class="loading-container">
+              <mat-spinner diameter="40"></mat-spinner>
+              <p>Carregando contas Steam...</p>
+            </div>
+
+            <div class="steam-accounts-grid" *ngIf="!steamLoading && steamIds.length > 0; else noSteamAccounts">
+              <mat-card *ngFor="let steamId of steamIds; trackBy: trackBySteamId" class="steam-card">
+                <mat-card-header>
+                  <mat-icon mat-card-avatar class="steam-icon">videogame_asset</mat-icon>
+                  <mat-card-title>SteamID: {{ steamId.steamid64 }}</mat-card-title>
+                  <mat-card-subtitle>Vinculado em {{ formatDate(steamId.linked_at) }}</mat-card-subtitle>
+                </mat-card-header>
+                
+                <mat-card-content>
+                  <div class="steam-status">
+                    <mat-chip [class]="steamId.is_default ? 'default-chip' : 'secondary-chip'">
+                      {{ steamId.is_default ? 'Conta Padrão' : 'Conta Secundária' }}
+                    </mat-chip>
+                  </div>
+                  
+                  <div class="steam-actions">
+                    <button mat-button 
+                            *ngIf="!steamId.is_default" 
+                            (click)="setDefaultSteam(steamId.steamid64)"
+                            [disabled]="steamLoading"
+                            color="primary">
+                      <mat-icon>star</mat-icon>
+                      Definir como Padrão
+                    </button>
+                    
+                    <button mat-button 
+                            *ngIf="!steamId.is_default" 
+                            (click)="removeSteam(steamId.steamid64)"
+                            [disabled]="steamLoading"
+                            color="warn">
+                      <mat-icon>delete</mat-icon>
+                      Remover
+                    </button>
+                    
+                    <span *ngIf="steamId.is_default" 
+                          class="default-label"
+                          matTooltip="Esta é sua conta Steam principal">
+                      <mat-icon>star</mat-icon>
+                      Conta Principal
+                    </span>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            </div>
+
+            <ng-template #noSteamAccounts>
+              <div class="empty-state" *ngIf="!steamLoading">
+                <mat-icon>videogame_asset_off</mat-icon>
+                <h3>Nenhuma conta Steam vinculada</h3>
+                <p>Conecte sua conta Steam para acessar recursos exclusivos do jogo.</p>
+                <button mat-raised-button color="primary" (click)="connectSteam()">
+                  <mat-icon>add</mat-icon>
+                  Conectar com Steam
+                </button>
+              </div>
+            </ng-template>
+
+            <!-- Steam Info Card -->
+            <mat-card class="info-card">
+              <mat-card-header>
+                <mat-icon mat-card-avatar>info</mat-icon>
+                <mat-card-title>Sobre a Integração Steam</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <ul>
+                  <li>Vincule sua conta Steam para sincronizar seu progresso no jogo</li>
+                  <li>Você pode ter múltiplas contas Steam vinculadas</li>
+                  <li>A conta marcada como "Padrão" será usada para operações automáticas</li>
+                  <li>Remover uma conta Steam não afeta seu progresso salvo</li>
+                </ul>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </mat-tab>
+
+        <!-- Tab Endereços -->
+        <mat-tab label="Endereços">
+          <div class="tab-content">
+            <div class="section-header">
+              <h2>Meus Endereços</h2>
+              <button mat-raised-button color="primary" (click)="addAddress()">
+                <mat-icon>add</mat-icon>
+                Adicionar Endereço
+              </button>
+            </div>
+
+            <div class="addresses-grid" *ngIf="addresses.length > 0; else noAddresses">
+              <mat-card *ngFor="let address of addresses; trackBy: trackByAddressId" class="address-card">
+                <mat-card-header>
+                  <mat-icon mat-card-avatar>location_on</mat-icon>
+                  <mat-card-title>{{ address.address_line1 }}</mat-card-title>
+                  <mat-card-subtitle>{{ address.city }}, {{ address.state }}</mat-card-subtitle>
+                </mat-card-header>
+                
+                <mat-card-content>
+                  <div class="address-details">
+                    <p><strong>Endereço:</strong> {{ address.address_line1 }}</p>
+                    <p *ngIf="address.address_line2"><strong>Complemento:</strong> {{ address.address_line2 }}</p>
+                    <p><strong>Cidade:</strong> {{ address.city }}</p>
+                    <p *ngIf="address.state"><strong>Estado:</strong> {{ address.state }}</p>
+                    <p *ngIf="address.postal_code"><strong>CEP:</strong> {{ address.postal_code }}</p>
+                    <p *ngIf="address.country"><strong>País:</strong> {{ address.country }}</p>
+                  </div>
+                  <mat-chip [class]="address.is_active ? 'active-chip' : 'inactive-chip'">
+                    {{ address.is_active ? 'Ativo' : 'Inativo' }}
+                  </mat-chip>
+                </mat-card-content>
+                
+                <mat-card-actions>
+                  <button mat-button (click)="editAddress(address)">
+                    <mat-icon>edit</mat-icon>
+                    Editar
+                  </button>
+                  <button mat-button color="warn" (click)="deleteAddress(address.id!)">
+                    <mat-icon>delete</mat-icon>
+                    Excluir
+                  </button>
+                </mat-card-actions>
+              </mat-card>
+            </div>
+
+            <ng-template #noAddresses>
+              <div class="empty-state">
+                <mat-icon>location_off</mat-icon>
+                <h3>Nenhum endereço cadastrado</h3>
+                <p>Adicione seu primeiro endereço clicando no botão acima.</p>
+              </div>
+            </ng-template>
+
+            <!-- Formulário de Endereço -->
+            <mat-card *ngIf="showAddressForm" class="form-card">
+              <mat-card-header>
+                <mat-card-title>{{ editingAddress ? 'Editar' : 'Adicionar' }} Endereço</mat-card-title>
+              </mat-card-header>
+              
+              <mat-card-content>
+                <form [formGroup]="addressForm" class="address-form">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Endereço *</mat-label>
+                    <input matInput formControlName="address_line1" placeholder="Rua, número">
+                    <mat-error *ngIf="addressForm.get('address_line1')?.hasError('required')">
+                      Endereço é obrigatório
+                    </mat-error>
+                  </mat-form-field>
+                  
+                  <mat-form-field appearance="outline">
+                    <mat-label>Complemento</mat-label>
+                    <input matInput formControlName="address_line2" placeholder="Apartamento, bloco, etc.">
+                  </mat-form-field>
+                  
+                  <div class="form-row">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Cidade *</mat-label>
+                      <input matInput formControlName="city">
+                      <mat-error *ngIf="addressForm.get('city')?.hasError('required')">
+                        Cidade é obrigatória
+                      </mat-error>
+                    </mat-form-field>
+                    
+                    <mat-form-field appearance="outline">
+                      <mat-label>Estado</mat-label>
+                      <input matInput formControlName="state">
+                    </mat-form-field>
+                  </div>
+                  
+                  <div class="form-row">
+                    <mat-form-field appearance="outline">
+                      <mat-label>CEP</mat-label>
+                      <input matInput formControlName="postal_code">
+                    </mat-form-field>
+                    
+                    <mat-form-field appearance="outline">
+                      <mat-label>País</mat-label>
+                      <input matInput formControlName="country">
+                    </mat-form-field>
+                  </div>
+                </form>
+              </mat-card-content>
+              
+              <mat-card-actions>
+                <button mat-raised-button color="primary" (click)="saveAddress()" [disabled]="addressForm.invalid">
+                  <mat-icon>save</mat-icon>
+                  {{ editingAddress ? 'Atualizar' : 'Salvar' }}
+                </button>
+                <button mat-button (click)="cancelAddressForm()">Cancelar</button>
+              </mat-card-actions>
+            </mat-card>
+          </div>
+        </mat-tab>
+
+        <!-- Tab Telefones -->
+        <mat-tab label="Telefones">
+          <div class="tab-content">
+            <div class="section-header">
+              <h2>Meus Telefones</h2>
+              <button mat-raised-button color="primary" (click)="addPhone()">
+                <mat-icon>add</mat-icon>
+                Adicionar Telefone
+              </button>
+            </div>
+
+            <div class="phones-grid" *ngIf="phones.length > 0; else noPhones">
+              <mat-card *ngFor="let phone of phones; trackBy: trackByPhoneId" class="phone-card">
+                <mat-card-header>
+                  <mat-icon mat-card-avatar>{{ getPhoneIcon(phone.phone_type) }}</mat-icon>
+                  <mat-card-title>{{ phone.phone_number }}</mat-card-title>
+                  <mat-card-subtitle>{{ getPhoneTypeLabel(phone.phone_type) }}</mat-card-subtitle>
+                </mat-card-header>
+                
+                <mat-card-content>
+                  <mat-chip [class]="phone.is_active ? 'active-chip' : 'inactive-chip'">
+                    {{ phone.is_active ? 'Ativo' : 'Inativo' }}
+                  </mat-chip>
+                </mat-card-content>
+                
+                <mat-card-actions>
+                  <button mat-button (click)="editPhone(phone)">
+                    <mat-icon>edit</mat-icon>
+                    Editar
+                  </button>
+                  <button mat-button color="warn" (click)="deletePhone(phone.id!)">
+                    <mat-icon>delete</mat-icon>
+                    Excluir
+                  </button>
+                </mat-card-actions>
+              </mat-card>
+            </div>
+
+            <ng-template #noPhones>
+              <div class="empty-state">
+                <mat-icon>phone_disabled</mat-icon>
+                <h3>Nenhum telefone cadastrado</h3>
+                <p>Adicione seu primeiro telefone clicando no botão acima.</p>
+              </div>
+            </ng-template>
+
+            <!-- Formulário de Telefone -->
+            <mat-card *ngIf="showPhoneForm" class="form-card">
+              <mat-card-header>
+                <mat-card-title>{{ editingPhone ? 'Editar' : 'Adicionar' }} Telefone</mat-card-title>
+              </mat-card-header>
+              
+              <mat-card-content>
+                <form [formGroup]="phoneForm" class="phone-form">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Número do Telefone *</mat-label>
+                    <input matInput formControlName="phone_number" placeholder="(11) 99999-9999">
+                    <mat-error *ngIf="phoneForm.get('phone_number')?.hasError('required')">
+                      Número é obrigatório
+                    </mat-error>
+                  </mat-form-field>
+                  
+                  <mat-form-field appearance="outline">
+                    <mat-label>Tipo</mat-label>
+                    <mat-select formControlName="phone_type">
+                      <mat-option value="mobile">Celular</mat-option>
+                      <mat-option value="home">Residencial</mat-option>
+                      <mat-option value="work">Comercial</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </form>
+              </mat-card-content>
+              
+              <mat-card-actions>
+                <button mat-raised-button color="primary" (click)="savePhone()" [disabled]="phoneForm.invalid">
+                  <mat-icon>save</mat-icon>
+                  {{ editingPhone ? 'Atualizar' : 'Salvar' }}
+                </button>
+                <button mat-button (click)="cancelPhoneForm()">Cancelar</button>
+              </mat-card-actions>
+            </mat-card>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </div>
+  

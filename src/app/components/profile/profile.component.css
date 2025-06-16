@@ -1,0 +1,220 @@
+    .profile-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .profile-tabs {
+      margin-top: 24px;
+    }
+    
+    .tab-content {
+      padding: 24px 0;
+    }
+    
+    .profile-card {
+      margin-bottom: 24px;
+    }
+    
+    .profile-avatar {
+      background: linear-gradient(45deg, #ff6600, #b71c1c);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 500;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+    }
+    
+    h1 {
+      background: linear-gradient(45deg, #ff6600, #b71c1c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 24px;
+    }
+    
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    
+    .section-header h2 {
+      margin: 0;
+      color: #333;
+    }
+    
+    .addresses-grid, .phones-grid, .steam-accounts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    
+    .address-card, .phone-card, .steam-card {
+      height: fit-content;
+    }
+    
+    .address-details p {
+      margin: 4px 0;
+      font-size: 14px;
+    }
+    
+    .form-card, .info-card {
+      margin-top: 24px;
+    }
+    
+    .address-form, .phone-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    
+    .form-row {
+      display: flex;
+      gap: 16px;
+    }
+    
+    .form-row mat-form-field {
+      flex: 1;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 48px;
+      color: #666;
+    }
+    
+    .empty-state mat-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      color: #ccc;
+      margin-bottom: 16px;
+    }
+    
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px;
+      color: #666;
+    }
+    
+    .loading-container p {
+      margin-top: 16px;
+    }
+    
+    .active-chip {
+      background-color: #e8f5e8;
+      color: #2e7d32;
+    }
+    
+    .inactive-chip {
+      background-color: #ffebee;
+      color: #c62828;
+    }
+    
+    .default-chip {
+      background-color: #fff3e0;
+      color: #f57c00;
+      font-weight: 500;
+    }
+    
+    .secondary-chip {
+      background-color: #f3e5f5;
+      color: #7b1fa2;
+    }
+    
+    .steam-icon {
+      background: linear-gradient(45deg, #1b2838, #2a475e);
+      color: white;
+    }
+    
+    .steam-status {
+      margin-bottom: 16px;
+    }
+    
+    .steam-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    
+    .default-label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: #f57c00;
+      font-weight: 500;
+      font-size: 14px;
+    }
+    
+    .default-label mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+    
+    .info-card ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    
+    .info-card li {
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    
+    @media (max-width: 768px) {
+      .section-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+      }
+      
+      .addresses-grid, .phones-grid, .steam-accounts-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      
+      .form-row {
+        flex-direction: column;
+      }
+
+      .tab-content {
+        padding: 16px 0;
+      }
+
+      .profile-card {
+        margin-bottom: 16px;
+      }
+      
+      .steam-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 24px;
+        margin-bottom: 16px;
+      }
+
+      .section-header h2 {
+        font-size: 18px;
+      }
+
+      .tab-content {
+        padding: 16px 0;
+      }
+
+      .addresses-grid, .phones-grid, .steam-accounts-grid {
+        gap: 12px;
+      }
+    }
