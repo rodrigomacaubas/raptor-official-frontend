@@ -1,0 +1,21 @@
+.transfer-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.transfer-card {
+  margin-top: 24px;
+}
+
+.transfer-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+h1 {
+  background: linear-gradient(45deg, #ff6600, #b71c1c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

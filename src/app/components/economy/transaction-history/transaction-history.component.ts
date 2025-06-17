@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ViewChild, Inject } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
@@ -6,10 +6,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatDialog, MatDialogModule, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-// corrigido: import padrão do jsPDF e import nomeado do plugin
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { TransactionDetailDialog } from './transaction-detail-dialog.component';
 
 interface Transaction {
   id: string;
@@ -25,124 +25,11 @@ interface Transaction {
   selector: 'app-transaction-history',
   standalone: true,
   imports: [
-    CommonModule,
-    MatCardModule,
-    MatTableModule,
-    MatIconModule,
-    MatButtonModule,
-    MatChipsModule,
-    MatPaginatorModule,
-    MatDialogModule
+    CommonModule, MatCardModule, MatTableModule, MatIconModule,
+    MatButtonModule, MatChipsModule, MatPaginatorModule, MatDialogModule
   ],
-  template: `
-    <div class="history-container">
-      <h1>Extrato da Conta</h1>
-      
-      <mat-card class="history-card">
-        <mat-card-header>
-          <mat-icon mat-card-avatar>receipt</mat-icon>
-          <mat-card-title>Histórico de Transações</mat-card-title>
-        </mat-card-header>
-
-        <mat-card-content>
-          <div class="export-buttons">
-            <button mat-stroked-button (click)="exportCSV()">
-              <mat-icon>file_download</mat-icon>
-              Exportar CSV
-            </button>
-            <button mat-stroked-button (click)="exportPDF()">
-              <mat-icon>picture_as_pdf</mat-icon>
-              Exportar PDF
-            </button>
-          </div>
-
-          <table mat-table [dataSource]="dataSource" class="transaction-table">
-            <!-- Tipo -->
-            <ng-container matColumnDef="type">
-              <th mat-header-cell *matHeaderCellDef>Tipo</th>
-              <td mat-cell *matCellDef="let tx">
-                <mat-icon class="type-icon {{tx.type}}">
-                  {{ getTypeIcon(tx.type) }}
-                </mat-icon>
-              </td>
-            </ng-container>
-
-            <!-- Descrição -->
-            <ng-container matColumnDef="description">
-              <th mat-header-cell *matHeaderCellDef>Descrição</th>
-              <td mat-cell *matCellDef="let tx">{{ tx.description }}</td>
-            </ng-container>
-
-            <!-- Valor -->
-            <ng-container matColumnDef="amount">
-              <th mat-header-cell *matHeaderCellDef>Valor</th>
-              <td mat-cell *matCellDef="let tx">
-                <span class="amount {{tx.type}}">
-                  {{ tx.type === 'expense' ? '-' : '+' }}{{ tx.amount }}
-                  <mat-icon class="currency-icon">{{ getCurrencyIcon(tx.currency) }}</mat-icon>
-                </span>
-              </td>
-            </ng-container>
-
-            <!-- Data -->
-            <ng-container matColumnDef="date">
-              <th mat-header-cell *matHeaderCellDef>Data</th>
-              <td mat-cell *matCellDef="let tx">{{ tx.date | date:'short' }}</td>
-            </ng-container>
-
-            <!-- Status -->
-            <ng-container matColumnDef="status">
-              <th mat-header-cell *matHeaderCellDef>Status</th>
-              <td mat-cell *matCellDef="let tx">
-                <mat-chip class="status-chip {{tx.status}}">
-                  {{ getStatusLabel(tx.status) }}
-                </mat-chip>
-              </td>
-            </ng-container>
-
-            <!-- Ações -->
-            <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef>Ações</th>
-              <td mat-cell *matCellDef="let tx">
-                <button mat-icon-button (click)="openDetails(tx)">
-                  <mat-icon>info</mat-icon>
-                </button>
-              </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-          </table>
-
-          <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
-        </mat-card-content>
-      </mat-card>
-    </div>
-  `,
-  styles: [`
-    .history-container { max-width: 1200px; margin: 0 auto; }
-    .history-card { margin-top: 24px; }
-    .export-buttons { display: flex; gap: 8px; margin-bottom: 16px; }
-    .transaction-table { width: 100%; }
-    .type-icon { font-size: 20px; }
-    .type-icon.income { color: #4caf50; }
-    .type-icon.expense { color: #f44336; }
-    .type-icon.transfer { color: #2196f3; }
-    .amount { font-weight: 500; display: inline-flex; align-items: center; gap: 4px; }
-    .amount.income { color: #4caf50; }
-    .amount.expense { color: #f44336; }
-    .amount.transfer { color: #2196f3; }
-    .currency-icon { font-size: 16px; width: 16px; height: 16px; }
-    .status-chip { font-size: 12px; }
-    .status-chip.completed { background: #e8f5e8; color: #2e7d32; }
-    .status-chip.pending { background: #fff3e0; color: #f57c00; }
-    .status-chip.failed { background: #ffebee; color: #c62828; }
-    h1 {
-      background: linear-gradient(45deg, #ff6600, #b71c1c);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-  `]
+  templateUrl: './transaction-history.component.html',
+  styleUrls: ['./transaction-history.component.css']
 })
 export class TransactionHistoryComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['type', 'description', 'amount', 'date', 'status', 'actions'];
@@ -210,37 +97,7 @@ export class TransactionHistoryComponent implements OnInit, AfterViewInit {
       tx.date.toLocaleString(),
       this.getStatusLabel(tx.status)
     ]);
-    // usa a função importada em vez de doc.autoTable
     autoTable(doc, { head: [cols], body: rows });
     doc.save(`extrato_${Date.now()}.pdf`);
   }
-}
-
-@Component({
-  selector: 'transaction-detail-dialog',
-  standalone: true,
-  imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
-  template: `
-    <h2 mat-dialog-title>Detalhes da Transação</h2>
-    <mat-dialog-content>
-      <p><strong>ID:</strong> {{data.id}}</p>
-      <p><strong>Tipo:</strong> {{data.type}}</p>
-      <p><strong>Descrição:</strong> {{data.description}}</p>
-      <p><strong>Valor:</strong> {{data.amount}}</p>
-      <p><strong>Data:</strong> {{data.date | date:'full'}}</p>
-      <p><strong>Status:</strong> {{data.status}}</p>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>
-        <mat-icon>close</mat-icon>
-        Fechar
-      </button>
-    </mat-dialog-actions>
-  `
-})
-export class TransactionDetailDialog {
-  constructor(
-    public dialogRef: MatDialogRef<TransactionDetailDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: Transaction
-  ) {}
 }

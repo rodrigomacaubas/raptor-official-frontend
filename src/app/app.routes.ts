@@ -5,11 +5,10 @@ import { ProfileComponent } from './components/profile/profile.component';
 import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
-  // Rota de callback Steam - DEVE VIR PRIMEIRO
+
   {
     path: 'steam-callback',
     loadComponent: () => import('./components/steam-callback/steam-callback.component').then(m => m.SteamCallbackComponent),
-    // Sem guards para permitir o processamento do callback
   },
   {
     path: '',
@@ -30,13 +29,13 @@ export const routes: Routes = [
     path: 'slotslegacy',
     loadComponent: () => import('./components/slots/slots-legacy/slots-legacy.component').then(m => m.SlotsLegacyComponent),
     canActivate: [canActivateAuthRole],
-    data: { role: 'view-slots' }
+    data: { role: 'view-slots-legacy' }
   },
   {
     path: 'slotsevrima',
     loadComponent: () => import('./components/slots/slots-evrima/slots-evrima.component').then(m => m.SlotsEvrimaComponent),
     canActivate: [canActivateAuthRole],
-    data: { role: 'view-slots' }
+    data: { role: 'view-slots-evrima' }
   },
   {
     path: 'transfer',

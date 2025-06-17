@@ -1,0 +1,22 @@
+.history-container { max-width: 1200px; margin: 0 auto; }
+.history-card { margin-top: 24px; }
+.export-buttons { display: flex; gap: 8px; margin-bottom: 16px; }
+.transaction-table { width: 100%; }
+.type-icon { font-size: 20px; }
+.type-icon.income { color: #4caf50; }
+.type-icon.expense { color: #f44336; }
+.type-icon.transfer { color: #2196f3; }
+.amount { font-weight: 500; display: inline-flex; align-items: center; gap: 4px; }
+.amount.income { color: #4caf50; }
+.amount.expense { color: #f44336; }
+.amount.transfer { color: #2196f3; }
+.currency-icon { font-size: 16px; width: 16px; height: 16px; }
+.status-chip { font-size: 12px; }
+.status-chip.completed { background: #e8f5e8; color: #2e7d32; }
+.status-chip.pending { background: #fff3e0; color: #f57c00; }
+.status-chip.failed { background: #ffebee; color: #c62828; }
+h1 {
+  background: linear-gradient(45deg, #ff6600, #b71c1c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

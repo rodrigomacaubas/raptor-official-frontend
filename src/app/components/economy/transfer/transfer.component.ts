@@ -12,80 +12,17 @@ import { MatIconModule } from '@angular/material/icon';
   selector: 'app-transfer',
   standalone: true,
   imports: [
-    CommonModule, FormsModule, MatCardModule, MatFormFieldModule, 
-    MatInputModule, MatSelectModule, MatButtonModule, MatIconModule
+    CommonModule,
+    FormsModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatIconModule,
   ],
-  template: `
-    <div class="transfer-container">
-      <h1>Transferir Moedas</h1>
-      
-      <mat-card class="transfer-card">
-        <mat-card-header>
-          <mat-icon mat-card-avatar>send</mat-icon>
-          <mat-card-title>Nova Transferência</mat-card-title>
-        </mat-card-header>
-        
-        <mat-card-content>
-          <form class="transfer-form">
-            <mat-form-field appearance="outline">
-              <mat-label>Destinatário</mat-label>
-              <input matInput placeholder="Nome do usuário" [(ngModel)]="recipient" name="recipient">
-            </mat-form-field>
-            
-            <mat-form-field appearance="outline">
-              <mat-label>Tipo de Moeda</mat-label>
-              <mat-select [(ngModel)]="currencyType" name="currencyType">
-                <mat-option value="np">NP</mat-option>
-                <mat-option value="vidas">Vidas</mat-option>
-                <mat-option value="dna">DNA</mat-option>
-              </mat-select>
-            </mat-form-field>
-            
-            <mat-form-field appearance="outline">
-              <mat-label>Quantidade</mat-label>
-              <input matInput type="number" [(ngModel)]="amount" name="amount" min="1">
-            </mat-form-field>
-            
-            <mat-form-field appearance="outline">
-              <mat-label>Mensagem (opcional)</mat-label>
-              <textarea matInput rows="3" [(ngModel)]="message" name="message"></textarea>
-            </mat-form-field>
-          </form>
-        </mat-card-content>
-        
-        <mat-card-actions>
-          <button mat-raised-button color="primary" (click)="transfer()">
-            <mat-icon>send</mat-icon>
-            Transferir
-          </button>
-          <button mat-button (click)="cancel()">Cancelar</button>
-        </mat-card-actions>
-      </mat-card>
-    </div>
-  `,
-  styles: [`
-    .transfer-container {
-      max-width: 600px;
-      margin: 0 auto;
-    }
-    
-    .transfer-card {
-      margin-top: 24px;
-    }
-    
-    .transfer-form {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    
-    h1 {
-      background: linear-gradient(45deg, #ff6600, #b71c1c);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-  `]
+  templateUrl: './transfer.component.html',
+  styleUrls: ['./transfer.component.css']
 })
 export class TransferComponent {
   recipient = '';
@@ -94,7 +31,12 @@ export class TransferComponent {
   message = '';
 
   transfer() {
-    console.log('Transfer:', { recipient: this.recipient, currencyType: this.currencyType, amount: this.amount, message: this.message });
+    console.log('Transfer:', {
+      recipient: this.recipient,
+      currencyType: this.currencyType,
+      amount: this.amount,
+      message: this.message
+    });
   }
 
   cancel() {

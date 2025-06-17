@@ -51,138 +51,125 @@
     </div>
     
     <script>
-        // Esta página intercepta o callback da Steam e faz a chamada diretamente ao backend
-        // evitando que o Angular/Keycloak interfiram
-        
-        async function processSteamCallback() {
-            const urlParams = new URLSearchParams(window.location.search);
-            
-            // Verifica se temos os parâmetros do Steam
-            if (!urlParams.has('openid.mode') || !urlParams.has('openid.claimed_id')) {
-                console.error('Parâmetros Steam não encontrados');
-                window.location.href = '/profile?error=missing_params';
-                return;
+    async function processSteamCallback() {
+        const urlParams = new URLSearchParams(window.location.search);
+
+        if (!urlParams.has('openid.mode') || !urlParams.has('openid.claimed_id')) {
+            console.error('Parâmetros Steam não encontrados');
+            window.location.href = '/profile?error=missing_params';
+            return;
+        }
+
+        const openidParams = {};
+        urlParams.forEach((value, key) => {
+            if (key.startsWith('openid.')) {
+                openidParams[key] = value;
             }
-            
-            // Extrai todos os parâmetros openid
-            const openidParams = {};
-            urlParams.forEach((value, key) => {
-                if (key.startsWith('openid.')) {
-                    openidParams[key] = value;
-                }
+        });
+
+        const token = findToken();
+
+        if (!token) {
+            console.warn('No token found in storage. The API call may fail with 401.');
+        }
+
+        try {
+            const response = await fetch('http://localhost:5000/api/auth/steam_verify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                },
+                body: JSON.stringify({
+                    openid_params: {
+                        'openid.ns': openidParams['openid.ns'],
+                        'openid.mode': 'check_authentication',
+                        'openid.op_endpoint': openidParams['openid.op_endpoint'],
+                        'openid.claimed_id': openidParams['openid.claimed_id'],
+                        'openid.identity': openidParams['openid.identity'],
+                        'openid.return_to': openidParams['openid.return_to'],
+                        'openid.response_nonce': openidParams['openid.response_nonce'],
+                        'openid.assoc_handle': openidParams['openid.assoc_handle'],
+                        'openid.signed': openidParams['openid.signed'],
+                        'openid.sig': openidParams['openid.sig']
+                    }
+                })
             });
-            
+
+            const result = await response.json();
+
+            if (response.ok) {
+                window.location.href = `/profile?steam_success=true&status=${result.status}`;
+            } else {
+                window.location.href = `/profile?steam_error=${encodeURIComponent(result.error || 'Falha na autenticação')}`;
+            }
+        } catch (error) {
+            console.error('Erro ao processar callback:', error);
+            window.location.href = '/profile?steam_error=network_error';
+        }
+    }
+
+    function findToken() {
+        return (
+            getTokenFromStorage('kc_token') ||
+            getTokenFromCommonKeys() ||
+            getTokenByPatternScan()
+        );
+    }
+
+    function getTokenFromStorage(key) {
+        return sessionStorage.getItem(key) || localStorage.getItem(key);
+    }
+
+    function getTokenFromCommonKeys() {
+        const keys = ['kc-token', 'keycloak-token', 'auth-token', 'access_token', 'kc_access_token'];
+
+        for (const key of keys) {
+            const value = sessionStorage.getItem(key) || localStorage.getItem(key);
+            if (!value) continue;
+
             try {
-                // Pega o token do Keycloak - tenta várias formas
-                let token = null;
-                
-                // 1. Tenta pegar do sessionStorage/localStorage onde salvamos
-                token = sessionStorage.getItem('kc_token') || localStorage.getItem('kc_token');
-                console.log('Token from kc_token:', !!token);
-                
-                // 2. Se não encontrou, procura por padrões comuns do Keycloak
-                if (!token) {
-                    // Keycloak angular geralmente usa este padrão
-                    const keycloakKeys = [
-                        'kc-token',
-                        'keycloak-token',
-                        'auth-token',
-                        'access_token',
-                        'kc_access_token'
-                    ];
-                    
-                    for (const key of keycloakKeys) {
-                        const value = sessionStorage.getItem(key) || localStorage.getItem(key);
-                        if (value) {
-                            try {
-                                // Se for JSON, tenta extrair o token
-                                const parsed = JSON.parse(value);
-                                token = parsed.token || parsed.access_token || parsed.accessToken;
-                            } catch (e) {
-                                // Se não for JSON, assume que é o token direto
-                                if (value.includes('eyJ')) {
-                                    token = value;
-                                }
-                            }
-                            if (token) {
-                                console.log(`Token found in ${key}`);
-                                break;
-                            }
-                        }
-                    }
+                const parsed = JSON.parse(value);
+                const token = parsed.token || parsed.access_token || parsed.accessToken;
+                if (token) {
+                    console.log(`Token found in ${key}`);
+                    return token;
                 }
-                
-                // 3. Última tentativa - procura por qualquer chave que pareça conter um token
-                if (!token) {
-                    const allKeys = [...Object.keys(localStorage), ...Object.keys(sessionStorage)];
-                    console.log('All storage keys:', allKeys);
-                    
-                    for (const key of allKeys) {
-                        const value = localStorage.getItem(key) || sessionStorage.getItem(key);
-                        if (value && value.includes('eyJ') && value.length > 100) {
-                            // Parece um JWT token
-                            try {
-                                // Verifica se é um JWT válido
-                                const parts = value.split('.');
-                                if (parts.length === 3) {
-                                    token = value;
-                                    console.log(`Token found in ${key} (JWT pattern)`);
-                                    break;
-                                }
-                            } catch (e) {
-                                // Ignora
-                            }
-                        }
-                    }
-                }
-                
-                console.log('Final token status:', !!token);
-                
-                // Se ainda não temos token, tenta outra abordagem
-                if (!token) {
-                    console.warn('No token found in storage. The API call may fail with 401.');
-                }
-                
-                // Faz a chamada diretamente ao backend
-                const response = await fetch('http://localhost:5000/api/auth/steam_verify', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-                    },
-                    body: JSON.stringify({
-                        openid_params: {
-                            'openid.ns': openidParams['openid.ns'],
-                            'openid.mode': 'check_authentication',
-                            'openid.op_endpoint': openidParams['openid.op_endpoint'],
-                            'openid.claimed_id': openidParams['openid.claimed_id'],
-                            'openid.identity': openidParams['openid.identity'],
-                            'openid.return_to': openidParams['openid.return_to'],
-                            'openid.response_nonce': openidParams['openid.response_nonce'],
-                            'openid.assoc_handle': openidParams['openid.assoc_handle'],
-                            'openid.signed': openidParams['openid.signed'],
-                            'openid.sig': openidParams['openid.sig']
-                        }
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (response.ok) {
-                    // Sucesso - redireciona para o perfil com mensagem de sucesso
-                    window.location.href = `/profile?steam_success=true&status=${result.status}`;
+            } catch (e) {
+                if (value.includes('eyJ')) {
+                    console.log(`Raw token found in ${key}`);
+                    return value;
                 } else {
-                    // Erro - redireciona com mensagem de erro
-                    window.location.href = `/profile?steam_error=${encodeURIComponent(result.error || 'Falha na autenticação')}`;
+                    console.warn(`Erro ao tentar parsear token de ${key}:`, e);
                 }
-            } catch (error) {
-                console.error('Erro ao processar callback:', error);
-                window.location.href = '/profile?steam_error=network_error';
             }
         }
-        
-        // Processa imediatamente
-        processSteamCallback();
-    </script>
+
+        return null;
+    }
+
+    function getTokenByPatternScan() {
+        const allKeys = [...Object.keys(localStorage), ...Object.keys(sessionStorage)];
+
+        for (const key of allKeys) {
+            const value = localStorage.getItem(key) || sessionStorage.getItem(key);
+            if (value && value.includes('eyJ') && value.length > 100) {
+                try {
+                    const parts = value.split('.');
+                    if (parts.length === 3) {
+                        console.log(`Token found in ${key} (JWT pattern)`);
+                        return value;
+                    }
+                } catch (e) {
+                    console.warn(`Erro ao validar padrão JWT em ${key}:`, e);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    processSteamCallback();
+</script>
 </body>
 </html>
