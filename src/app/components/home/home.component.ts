@@ -1,8 +1,11 @@
-import { Component } from '@angular/core';
+// src/app/components/home/home.component.ts
+import { Component, inject, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import Keycloak from 'keycloak-js';
+import { KEYCLOAK_EVENT_SIGNAL, KeycloakEventType, typeEventArgs, ReadyArgs } from 'keycloak-angular';
 
 @Component({
   selector: 'app-home',
@@ -11,7 +14,29 @@ import { MatButtonModule } from '@angular/material/button';
   template: `
     <div class="home-container">
       <h1>Bem-vindo ao Raptor Frontend</h1>
-      <div class="cards-grid">
+      
+      <!-- Conteúdo para usuários não autenticados -->
+      <div *ngIf="!authenticated" class="guest-content">
+        <mat-card class="welcome-card">
+          <mat-card-header>
+            <mat-icon mat-card-avatar>info</mat-icon>
+            <mat-card-title>Acesso Limitado</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <p>Você está visualizando o sistema como visitante.</p>
+            <p>Para acessar todas as funcionalidades, faça login em sua conta.</p>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-raised-button color="primary" (click)="login()">
+              <mat-icon>login</mat-icon>
+              Fazer Login
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      </div>
+      
+      <!-- Conteúdo para usuários autenticados -->
+      <div *ngIf="authenticated" class="cards-grid">
         <mat-card class="info-card">
           <mat-card-header>
             <mat-icon mat-card-avatar>dashboard</mat-icon>
@@ -50,6 +75,17 @@ import { MatButtonModule } from '@angular/material/button';
       margin: 0 auto;
     }
     
+    .guest-content {
+      display: flex;
+      justify-content: center;
+      margin-top: 40px;
+    }
+    
+    .welcome-card {
+      max-width: 500px;
+      text-align: center;
+    }
+    
     .cards-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -74,11 +110,44 @@ import { MatButtonModule } from '@angular/material/button';
         gap: 16px;
         margin-top: 16px;
       }
+      
+      .welcome-card {
+        margin: 0 16px;
+      }
+      
       h1 {
         margin-bottom: 16px;
-        font-size: 28px; /* Example responsive font size for h1 */
+        font-size: 28px;
       }
     }
   `]
 })
-export class HomeComponent {}
+export class HomeComponent implements OnInit {
+  private readonly keycloak = inject(Keycloak);
+  private readonly keycloakSignal = inject(KEYCLOAK_EVENT_SIGNAL);
+  authenticated = false;
+
+  constructor() {
+    // Monitora eventos do Keycloak usando signals
+    effect(() => {
+      const keycloakEvent = this.keycloakSignal();
+
+      if (keycloakEvent.type === KeycloakEventType.Ready) {
+        this.authenticated = typeEventArgs<ReadyArgs>(keycloakEvent.args);
+      }
+
+      if (keycloakEvent.type === KeycloakEventType.AuthLogout) {
+        this.authenticated = false;
+      }
+    });
+  }
+
+  ngOnInit() {
+    // Verifica o estado inicial
+    this.authenticated = this.keycloak.authenticated ?? false;
+  }
+
+  login() {
+    this.keycloak.login();
+  }
+}
