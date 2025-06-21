@@ -17,13 +17,12 @@ export const routes: Routes = [
   {
     path: 'profile',
     component: ProfileComponent,
-    canActivate: [AuthGuard] // Força login para perfil
+    canActivate: [AuthGuard]
   },
   {
     path: 'home',
     loadComponent: () => import('./components/home/home.component').then(m => m.HomeComponent),
-    // MUDANÇA: Remove canActivate para permitir acesso sem login
-    // canActivate: [canActivateAuthRole]
+    canActivate: [AuthGuard]
   },
   {
     path: 'slotslegacy',
