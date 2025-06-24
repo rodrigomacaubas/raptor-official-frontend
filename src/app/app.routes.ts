@@ -5,7 +5,6 @@ import { ProfileComponent } from './components/profile/profile.component';
 import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
-
   {
     path: 'steam-callback',
     loadComponent: () => import('./components/steam-callback/steam-callback.component').then(m => m.SteamCallbackComponent),
@@ -23,7 +22,7 @@ export const routes: Routes = [
   {
     path: 'home',
     loadComponent: () => import('./components/home/home.component').then(m => m.HomeComponent),
-    canActivate: [canActivateAuthRole]
+    canActivate: [AuthGuard]
   },
   {
     path: 'slotslegacy',

@@ -30,11 +30,11 @@ export const provideKeycloakAngular = () =>
       clientId: 'angular-client'
     },
     initOptions: {
+      // MUDANÇA PRINCIPAL: check-sso permite acesso sem login
       onLoad: 'check-sso',
       checkLoginIframe: false,
       silentCheckSsoRedirectUri: window.location.origin + '/assets/silent-check-sso.html',
-      // Não usar redirectUri global - deixar que cada guard decida
-      enableLogging: true // Para debug
+      enableLogging: true
     },
     features: [
       withAutoRefreshToken({

@@ -1,17 +1,23 @@
+// src/app/guards/auth-role.guard.ts
 import { inject } from '@angular/core';
 import { AuthGuardData, createAuthGuard } from 'keycloak-angular';
 import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
+import Keycloak from 'keycloak-js';
 
-const isAccessAllowed = async (
+const isAccessAllowedOptional = async (
   route: ActivatedRouteSnapshot,
   state: RouterStateSnapshot,
   authData: AuthGuardData
 ): Promise<boolean | UrlTree> => {
   const { authenticated, grantedRoles } = authData;
+  const router = inject(Router);
   
-  // Se não está autenticado, será redirecionado automaticamente para login
-  // devido ao onLoad: 'login-required' na configuração
+  // MUDANÇA: Se não autenticado, redireciona para login em vez de bloquear
   if (!authenticated) {
+    const keycloak = inject(Keycloak);
+    await keycloak.login({
+      redirectUri: window.location.origin + state.url
+    });
     return false;
   }
 
@@ -28,7 +34,6 @@ const isAccessAllowed = async (
     };
 
     if (!hasRequiredRole(requiredRole)) {
-      const router = inject(Router);
       return router.parseUrl('/forbidden');
     }
   }
@@ -36,4 +41,4 @@ const isAccessAllowed = async (
   return true;
 };
 
-export const canActivateAuthRole = createAuthGuard<CanActivateFn>(isAccessAllowed);
+export const canActivateAuthRole = createAuthGuard<CanActivateFn>(isAccessAllowedOptional);
