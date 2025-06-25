@@ -1,3 +1,4 @@
+// src/app/services/api.service.ts
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, throwError, from } from 'rxjs';
@@ -47,6 +48,22 @@ export interface SteamId {
 export interface UserSteamIdsResponse {
   steam_ids: SteamId[];
   message?: string;
+}
+
+export interface Currency {
+  currency_id: string;
+  currency_name: string;
+  currency_type: string;
+  is_active: boolean;
+  balance: number;
+}
+
+export interface ServerBalanceResponse {
+  message: string;
+  server_id: string;
+  server_name: string;
+  user_id: string;
+  balances: Currency[];
 }
 
 @Injectable({
@@ -125,6 +142,11 @@ export class ApiService {
   // Economy methods (for future use)
   getUserBalance(): Observable<any> {
     return this.get('/user/balance');
+  }
+  
+  // Server balance method
+  getServerBalance(serverId: string): Observable<ServerBalanceResponse> {
+    return this.get<ServerBalanceResponse>(`/servers/${serverId}/my-balance`);
   }
 
   transferCurrency(transferData: any): Observable<any> {
