@@ -27,8 +27,7 @@ export const routes: Routes = [
   {
     path: 'slotslegacy',
     loadComponent: () => import('./components/slots/slots-legacy/slots-legacy.component').then(m => m.SlotsLegacyComponent),
-    canActivate: [canActivateAuthRole],
-    data: { role: 'view-slots-legacy' }
+    canActivate: [AuthGuard]
   },
   {
     path: 'slotsevrima',
@@ -45,8 +44,7 @@ export const routes: Routes = [
   {
     path: 'storelegacy',
     loadComponent: () => import('./components/economy/store-legacy/store-legacy.component').then(m => m.StoreLegacyComponent),
-    canActivate: [canActivateAuthRole],
-    data: { role: 'view-store' }
+    canActivate: [AuthGuard]
   },
   {
     path: 'storeevrima',
@@ -66,6 +64,7 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: '/home'
+    loadComponent: () => import('./components/notfound/notfound.component').then(m => m.NotfoundComponent)
   }
+
 ];

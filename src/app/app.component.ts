@@ -13,6 +13,10 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import Keycloak, { KeycloakProfile } from 'keycloak-js';
 import { KEYCLOAK_EVENT_SIGNAL, KeycloakEventType, typeEventArgs, ReadyArgs, HasRolesDirective } from 'keycloak-angular';
+import { ServerService } from './services/server.service';
+import { ServerSelectorComponent } from './components/server-selector/server-selector.component';
+import { Subscription } from 'rxjs';
+
 
 interface MenuItem {
   label: string;
@@ -44,7 +48,8 @@ interface Currency {
     MatBadgeModule,
     MatDividerModule,
     MatTooltipModule,
-    RouterModule
+    RouterModule,
+    ServerSelectorComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
@@ -60,10 +65,15 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   userProfile: KeycloakProfile = {};
   authenticated = false;
   
+  // Nome do servidor
+  serverName = 'Painel Raptor Cloud';
+  
   private readonly keycloak = inject(Keycloak);
   private readonly keycloakSignal = inject(KEYCLOAK_EVENT_SIGNAL);
   private readonly router = inject(Router);
+  private readonly serverService = inject(ServerService);
   private readonly resizeListener: () => void;
+  private subscriptions = new Subscription();
   
   menuItems: MenuItem[] = [
     {
@@ -93,11 +103,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   ];
 
-  currencies: Currency[] = [
-    { label: 'NP', icon: 'toll', value: 1234, class: 'np' },
-    { label: 'Vidas', icon: 'favorite', value: 5, class: 'vidas' },
-    { label: 'DNA', icon: 'science', value: 89, class: 'dna' }
-  ];
+  currencies: Currency[] = [];
 
   constructor() {
     // Verifica o tamanho da tela
@@ -111,13 +117,34 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
       if (keycloakEvent.type === KeycloakEventType.Ready) {
         this.authenticated = typeEventArgs<ReadyArgs>(keycloakEvent.args);
+        
+        // Se autenticado, carrega os dados do servidor
+        if (this.authenticated) {
+          this.loadServerData();
+        }
       }
 
       if (keycloakEvent.type === KeycloakEventType.AuthLogout) {
         this.authenticated = false;
         this.userProfile = {};
+        this.currencies = [];
+        this.serverName = 'Painel Raptor Cloud';
       }
     });
+    
+    // Se inscreve nas mudanças do servidor
+    this.subscriptions.add(
+      this.serverService.serverName$.subscribe(name => {
+        this.serverName = name;
+      })
+    );
+    
+    // Se inscreve nas mudanças das moedas
+    this.subscriptions.add(
+      this.serverService.currencies$.subscribe(currencies => {
+        this.currencies = currencies as any[];
+      })
+    );
   }
 
   async ngOnInit() {
@@ -135,6 +162,9 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       this.authenticated = true;
       try {
         this.userProfile = await this.keycloak.loadUserProfile();
+        
+        // Carrega os dados do servidor após autenticação
+        this.loadServerData();
         
         // Só redireciona se não estiver autenticado e estiver na raiz
         if (!this.authenticated && (this.router.url === '/' || this.router.url === '')) {
@@ -203,5 +233,17 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnDestroy() {
     window.removeEventListener('resize', this.resizeListener);
+    this.subscriptions.unsubscribe();
+  }
+  
+  private loadServerData(): void {
+    this.serverService.loadServerBalance().subscribe({
+      next: (response) => {
+        console.log('Dados do servidor carregados:', response);
+      },
+      error: (error) => {
+        console.error('Erro ao carregar dados do servidor:', error);
+      }
+    });
   }
 }

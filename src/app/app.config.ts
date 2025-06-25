@@ -1,8 +1,10 @@
+// src/app/app.config.ts
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { includeBearerTokenInterceptor } from 'keycloak-angular';
+import { httpTokenInterceptor } from './interceptors/http-token.interceptor';
 
 import { routes } from './app.routes';
 import { provideKeycloakAngular } from './keycloak/keycloak.config';
@@ -13,6 +15,6 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideAnimationsAsync(),
-    provideHttpClient(withInterceptors([includeBearerTokenInterceptor]))
+    provideHttpClient(withInterceptors([includeBearerTokenInterceptor, httpTokenInterceptor]))
   ]
 };
