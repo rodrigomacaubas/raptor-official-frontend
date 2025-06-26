@@ -6,17 +6,29 @@
         <!-- Tab Dados Básicos -->
         <mat-tab label="Dados Básicos">
           <div class="tab-content">
-            <mat-card class="profile-card">
-              <mat-card-header>
-                <div mat-card-avatar class="profile-avatar">
-                  {{ getInitials() }}
-                </div>
-                <mat-card-title>{{ userProfile.firstName }} {{ userProfile.lastName }}</mat-card-title>
-                <mat-card-subtitle>{{ userProfile.email }}</mat-card-subtitle>
-              </mat-card-header>
-              
-              <mat-card-content>
-                <mat-list>
+              <mat-card class="profile-card">
+                <mat-card-header>
+                  <div mat-card-avatar class="profile-avatar"
+                      [class.has-image]="profileImageUrl"
+                      [style.background-image]="profileImageUrl ? 'url(' + profileImageUrl + ')' : null">
+                    <span *ngIf="!profileImageUrl">{{ getInitials() }}</span>
+                  </div>
+                  <mat-card-title>{{ userProfile.firstName }} {{ userProfile.lastName }}</mat-card-title>
+                  <mat-card-subtitle>{{ userProfile.email }}</mat-card-subtitle>
+                </mat-card-header>
+                
+                <mat-card-content>
+                  <!-- Adicione o componente de upload de imagem -->
+                  <app-profile-image-upload
+                    [initials]="getInitials()"
+                    [currentImageUrl]="profileImageUrl"
+                    (imageUploaded)="onImageUploaded($event)"
+                    (imageRemoved)="onImageRemoved()">
+                  </app-profile-image-upload>
+                  
+                  <mat-divider class="my-4"></mat-divider>
+                  
+                  <mat-list>
                   <mat-list-item>
                     <mat-icon matListItemIcon>person</mat-icon>
                     <div matListItemTitle>Nome de usuário</div>

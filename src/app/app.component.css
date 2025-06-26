@@ -1,3 +1,6 @@
+/*
+ * Base Styles & Layout (Sidenav Container, Host, Mat Drawer Container)
+ */
 .sidenav-container {
   position: absolute;
   top: 0;
@@ -7,6 +10,26 @@
   height: 100%;
 }
 
+:host {
+  display: block;
+  height: 100vh;
+  overflow-x: hidden;
+}
+
+.mat-drawer-container {
+  height: 100%;
+}
+
+/* Prevent horizontal scroll on body and html */
+:host,
+:host ::ng-deep html,
+:host ::ng-deep body {
+  overflow-x: hidden !important;
+}
+
+/*
+ * Sidenav Styles
+ */
 .sidenav {
   display: flex;
   flex-direction: column;
@@ -41,6 +64,9 @@
   min-width: 280px;
 }
 
+/*
+ * Sidebar Header
+ */
 .sidebar-header {
   padding: 16px;
   display: flex;
@@ -57,6 +83,9 @@
   color: white;
 }
 
+/*
+ * User Section (Normal and Minimized)
+ */
 .user-section {
   padding: 24px 16px;
   text-align: center;
@@ -66,6 +95,11 @@
 .user-avatar {
   margin-bottom: 12px;
   cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.user-avatar:hover {
+  transform: scale(1.05);
 }
 
 .avatar-circle {
@@ -82,12 +116,70 @@
   color: white;
 }
 
+/* Avatar com imagem (normal e minimizado) */
+.avatar-circle.has-image,
+.minimized-avatar.has-image {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.avatar-circle.has-image span,
+.minimized-avatar.has-image span {
+  display: none;
+}
+
 .user-name {
   font-size: 14px;
   font-weight: 500;
   opacity: 0.9;
 }
 
+/* Avatar minimizado */
+.minimized-user-section {
+  padding: 16px 8px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.minimized-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 16px;
+  margin: 0 auto;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.minimized-avatar:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Ajuste para o ícone quando minimizado (avatar) */
+.sidenav.minimized .user-avatar {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto;
+}
+
+.sidenav.minimized .avatar-circle {
+  width: 40px;
+  height: 40px;
+  font-size: 16px;
+}
+
+
+/*
+ * Navigation List
+ */
 .navigation-list {
   flex: 1;
   padding: 16px 0;
@@ -155,17 +247,13 @@
   pointer-events: none;
 }
 
+/*
+ * Sidebar Footer (Currencies for Mobile)
+ */
 .sidebar-footer {
   padding: 16px;
   border-top: 1px solid rgba(255, 255, 255, 0.2);
   margin-top: auto; /* Push to bottom */
-}
-
-/* Hide sidebar footer on desktop, show on mobile */
-@media (min-width: 769px) {
-  .sidebar-footer {
-    display: none;
-  }
 }
 
 .currency-section {
@@ -211,6 +299,9 @@
   font-weight: 500;
 }
 
+/*
+ * Main Content & Mat Sidenav Content
+ */
 .main-content {
   display: flex;
   flex-direction: column;
@@ -228,7 +319,7 @@
   margin-left: 64px !important;
 }
 
-mat-sidenav-content {
+mat-sidenav-content { /* Esto es un selector de etiqueta, no una clase, pero está bien aquí */
   width: 100%;
   height: 100%;
   display: flex;
@@ -237,8 +328,10 @@ mat-sidenav-content {
   overflow-x: hidden;
 }
 
-/* Toolbar styles with higher specificity */
-mat-toolbar.toolbar {
+/*
+ * Toolbar Styles
+ */
+mat-toolbar.toolbar { /* High specificity for toolbar */
   background: linear-gradient(90deg, #ff6600, #ff8533) !important;
   color: white !important;
   position: fixed !important;
@@ -257,6 +350,7 @@ mat-toolbar.toolbar button {
   color: white !important;
 }
 
+/* General toolbar styles (less specific, used for other properties) */
 .toolbar {
   position: fixed;
   top: 0;
@@ -270,12 +364,12 @@ mat-toolbar.toolbar button {
   align-items: center;
 }
 
-.toolbar.mat-toolbar {
+.toolbar.mat-toolbar { /* Specificity for when .toolbar is also mat-toolbar */
   background: linear-gradient(90deg, #ff6600, #ff8533) !important;
   color: white;
 }
 
-.toolbar .mat-toolbar {
+.toolbar .mat-toolbar { /* Styles for mat-toolbar *inside* .toolbar */
   background: transparent;
   width: 100%;
   color: white;
@@ -283,6 +377,9 @@ mat-toolbar.toolbar button {
   box-sizing: border-box;
 }
 
+/*
+ * Toolbar Content
+ */
 mat-toolbar.toolbar .toolbar-content {
   padding-left: 296px; /* 280px sidebar + 16px padding */
   padding-right: 16px;
@@ -290,16 +387,6 @@ mat-toolbar.toolbar .toolbar-content {
   width: 100%;
   display: flex;
   align-items: center;
-}
-
-/* Desktop specific adjustments */
-.sidenav-container.desktop mat-toolbar.toolbar .toolbar-content {
-  padding-left: 296px; /* 280px sidebar + 16px padding */
-  transition: padding-left 0.3s ease;
-}
-
-.sidenav-container.desktop .sidenav.minimized ~ .mat-sidenav-content mat-toolbar.toolbar .toolbar-content {
-  padding-left: 80px; /* 64px sidebar + 16px padding */
 }
 
 .toolbar-content {
@@ -324,33 +411,14 @@ mat-toolbar.toolbar .toolbar-content {
   flex: 1 1 auto;
 }
 
+/*
+ * Toolbar Currencies
+ */
 .toolbar-currencies {
   display: flex;
   align-items: center;
   gap: 16px;
   margin-right: 16px;
-}
-
-/* Force show currencies on desktop */
-@media (min-width: 769px) {
-  .toolbar-currencies {
-    display: flex !important;
-  }
-  
-  /* Responsive adjustments for smaller desktop screens */
-  @media (max-width: 1400px) {
-    .toolbar-currencies {
-      gap: 12px;
-    }
-    
-    .toolbar-currency-item {
-      padding: 3px 6px;
-    }
-    
-    .toolbar-currency-item .currency-value {
-      font-size: 12px;
-    }
-  }
 }
 
 .toolbar-currency-item {
@@ -380,14 +448,32 @@ mat-toolbar.toolbar .toolbar-content {
   font-size: 13px;
 }
 
+/*
+ * User Menu Button & Toolbar Avatar
+ */
 .user-menu-button {
   color: white !important;
+  padding: 0 !important;
+  overflow: visible;
 }
 
 .user-menu-button mat-icon {
   color: white !important;
 }
 
+.toolbar-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/*
+ * Content Wrapper
+ */
 .content-wrapper {
   flex: 1;
   padding: 24px;
@@ -398,20 +484,79 @@ mat-toolbar.toolbar .toolbar-content {
   overflow-y: auto;
 }
 
-/* Prevent horizontal scroll on body and html */
-:host,
-:host ::ng-deep html,
-:host ::ng-deep body {
-  overflow-x: hidden !important;
+/*
+ * Mat Drawer Backdrop (for mobile overlay)
+ */
+.mat-drawer-backdrop {
+  position: fixed;
+  z-index: 1199; /* Just below mobile sidebar */
 }
 
-/* Responsive adjustments */
+/*
+ * Animations
+ */
+/* Animation for mobile drawer */
+.sidenav.mobile {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/*
+ * Responsive Adjustments (Media Queries)
+ */
+
+/* Desktop specific adjustments */
+@media (min-width: 769px) {
+  .sidenav-container.desktop mat-toolbar.toolbar .toolbar-content {
+    padding-left: 296px; /* 280px sidebar + 16px padding */
+    transition: padding-left 0.3s ease;
+  }
+
+  .sidenav-container.desktop .sidenav.minimized ~ .mat-sidenav-content mat-toolbar.toolbar .toolbar-content {
+    padding-left: 80px; /* 64px sidebar + 16px padding */
+  }
+
+  /* Force show currencies on desktop */
+  .toolbar-currencies {
+    display: flex !important;
+  }
+
+  /* Hide sidebar footer on desktop */
+  .sidebar-footer {
+    display: none;
+  }
+
+  /* Responsive adjustments for smaller desktop screens */
+  @media (max-width: 1400px) {
+    .toolbar-currencies {
+      gap: 12px;
+    }
+
+    .toolbar-currency-item {
+      padding: 3px 6px;
+    }
+
+    .toolbar-currency-item .currency-value {
+      font-size: 12px;
+    }
+  }
+}
+
+/* Responsive adjustments for Mobile */
 @media (max-width: 768px) {
   mat-toolbar.toolbar .toolbar-content {
     padding-left: 8px !important; /* Reset padding on mobile */
     padding-right: 8px !important;
   }
-  
+
   .sidenav {
     position: fixed;
     z-index: 1200; /* Higher than toolbar on mobile */
@@ -423,7 +568,7 @@ mat-toolbar.toolbar .toolbar-content {
   .main-content {
     width: 100%;
   }
-  
+
   .mat-sidenav-content {
     margin-left: 0 !important;
     padding-top: 64px !important; /* Space for fixed toolbar */
@@ -446,18 +591,18 @@ mat-toolbar.toolbar .toolbar-content {
   .content-wrapper {
     padding: 16px;
   }
-  
+
   /* Show sidebar footer with currencies on mobile */
   .sidebar-footer {
     display: block !important;
   }
-  
+
   .currency-section {
     display: flex;
     flex-direction: column;
     gap: 12px;
   }
-  
+
   .currency-item {
     display: flex;
     align-items: center;
@@ -467,35 +612,4 @@ mat-toolbar.toolbar .toolbar-content {
     border-radius: 8px;
     background: rgba(255, 255, 255, 0.1);
   }
-}
-
-/* Fix for mat-drawer-backdrop */
-.mat-drawer-backdrop {
-  position: fixed;
-  z-index: 1199; /* Just below mobile sidebar */
-}
-
-/* Animation for mobile drawer */
-.sidenav.mobile {
-  animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateX(-100%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-
-/* Ensure proper layout */
-:host {
-  display: block;
-  height: 100vh;
-  overflow-x: hidden;
-}
-
-.mat-drawer-container {
-  height: 100%;
 }

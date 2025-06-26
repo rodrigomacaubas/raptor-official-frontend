@@ -13,14 +13,29 @@
       </button>
     </div>
 
+    <!-- Substitua a seção user-section completa por: -->
     <div class="user-section" *ngIf="!isMinimized() || isMobile()">
-      <div class="user-avatar">
-        <div class="avatar-circle">
-          {{ getInitials() }}
+      <div class="user-avatar" (click)="navigateTo('/profile')">
+        <div class="avatar-circle" 
+            [class.has-image]="profileImageUrl"
+            [style.background-image]="profileImageUrl ? 'url(' + profileImageUrl + ')' : null">
+          <span *ngIf="!profileImageUrl">{{ getInitials() }}</span>
         </div>
       </div>
       <div class="user-name">
         {{ userProfile.firstName }} {{ userProfile.lastName }}
+      </div>
+    </div>
+
+    <!-- E quando o sidebar estiver minimizado (desktop), adicione após o sidebar-header: -->
+    <div class="minimized-user-section" *ngIf="isMinimized() && !isMobile()">
+      <div class="minimized-avatar" 
+          [class.has-image]="profileImageUrl"
+          [style.background-image]="profileImageUrl ? 'url(' + profileImageUrl + ')' : null"
+          [matTooltip]="userProfile.firstName + ' ' + userProfile.lastName"
+          matTooltipPosition="right"
+          (click)="navigateTo('/profile')">
+        <span *ngIf="!profileImageUrl">{{ getInitials() }}</span>
       </div>
     </div>
 

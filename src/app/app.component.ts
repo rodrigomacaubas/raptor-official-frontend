@@ -15,6 +15,8 @@ import Keycloak, { KeycloakProfile } from 'keycloak-js';
 import { KEYCLOAK_EVENT_SIGNAL, KeycloakEventType, typeEventArgs, ReadyArgs, HasRolesDirective } from 'keycloak-angular';
 import { ServerService } from './services/server.service';
 import { ServerSelectorComponent } from './components/server-selector/server-selector.component';
+import { ProfileImageService } from './services/profile-image.service';
+import { ApiService } from './services/api.service';
 import { Subscription } from 'rxjs';
 
 
@@ -64,6 +66,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   isDrawerOpen = signal(false);
   userProfile: KeycloakProfile = {};
   authenticated = false;
+  profileImageUrl: string | null = null;
   
   // Nome do servidor
   serverName = 'Painel Raptor Cloud';
@@ -72,6 +75,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   private readonly keycloakSignal = inject(KEYCLOAK_EVENT_SIGNAL);
   private readonly router = inject(Router);
   private readonly serverService = inject(ServerService);
+  private readonly profileImageService = inject(ProfileImageService);
+  private readonly apiService = inject(ApiService);
   private readonly resizeListener: () => void;
   private subscriptions = new Subscription();
   
@@ -121,6 +126,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         // Se autenticado, carrega os dados do servidor
         if (this.authenticated) {
           this.loadServerData();
+          this.loadUserProfileImage();
         }
       }
 
@@ -129,6 +135,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         this.userProfile = {};
         this.currencies = [];
         this.serverName = 'Painel Raptor Cloud';
+        this.profileImageUrl = null;
+        this.profileImageService.clearState();
       }
     });
     
@@ -143,6 +151,13 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     this.subscriptions.add(
       this.serverService.currencies$.subscribe(currencies => {
         this.currencies = currencies as any[];
+      })
+    );
+    
+    // Se inscreve nas mudanças da imagem de perfil
+    this.subscriptions.add(
+      this.profileImageService.profileImageUrl$.subscribe(url => {
+        this.profileImageUrl = url;
       })
     );
   }
@@ -165,7 +180,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         
         // Carrega os dados do servidor após autenticação
         this.loadServerData();
-        
+        this.loadUserProfileImage();
+        console.log(this.loadUserProfileImage)
         // Só redireciona se não estiver autenticado e estiver na raiz
         if (!this.authenticated && (this.router.url === '/' || this.router.url === '')) {
           this.router.navigate(['/home']);
@@ -246,4 +262,24 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
   }
+  
+  private loadUserProfileImage(): void {
+    this.apiService.getUserProfile().subscribe({
+      next: (profile) => {
+        console.log('Perfil carregado:', profile); // Debug
+        
+        if (profile.has_image && profile.profile_image_url) {
+          this.profileImageUrl = profile.profile_image_url;
+          this.profileImageService.setProfileImageUrl(profile.profile_image_url);
+        } else {
+          this.profileImageUrl = null;
+          this.profileImageService.setProfileImageUrl(null);
+        }
+      },
+      error: (error) => {
+        console.error('Erro ao carregar imagem do perfil:', error);
+      }
+    });
+  }
+
 }

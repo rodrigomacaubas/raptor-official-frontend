@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 // Ajuste a URL base conforme seu backend
-const API_BASE_URL = 'http://localhost:5080/api';
+const API_BASE_URL = 'http://localhost:5000/api';
 
 @Injectable({
   providedIn: 'root'
@@ -13,12 +13,12 @@ export class UserService {
 
   // Exemplo de requisição GET autenticada
   getUserData(): Observable<any> {
-    return this.http.get(`${API_BASE_URL}/user/profile`);
+    return this.http.get(`${API_BASE_URL}/url/user-profile`);
   }
 
   // Exemplo de requisição POST autenticada
   updateUserProfile(data: any): Observable<any> {
-    return this.http.post(`${API_BASE_URL}/user/profile`, data);
+    return this.http.post(`${API_BASE_URL}/url/user-profile`, data);
   }
 
   // Exemplo de requisição para buscar transações
