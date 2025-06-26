@@ -20,6 +20,9 @@ import Keycloak, { KeycloakProfile } from 'keycloak-js';
 import { KEYCLOAK_EVENT_SIGNAL, KeycloakEventType } from 'keycloak-angular';
 import { SteamService } from '../../services/steam.service';
 import { SteamId } from '../../services/api.service';
+import { ProfileImageService } from '../../services/profile-image.service';
+import { ProfileImageUploadComponent } from './profiile-image-upload/profile-image-upload.component';
+import { ApiService } from '../../services/api.service';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 
@@ -48,7 +51,8 @@ interface UserPhone {
     CommonModule, ReactiveFormsModule, MatCardModule, MatIconModule, 
     MatButtonModule, MatListModule, MatTabsModule, MatFormFieldModule,
     MatInputModule, MatSelectModule, MatDialogModule, MatSnackBarModule,
-    MatTableModule, MatChipsModule, MatProgressSpinnerModule, MatTooltipModule
+    MatTableModule, MatChipsModule, MatProgressSpinnerModule, MatTooltipModule,
+    ProfileImageUploadComponent
   ],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css'
@@ -60,10 +64,13 @@ export class ProfileComponent implements OnInit, OnDestroy {
   private readonly snackBar = inject(MatSnackBar);
   private readonly steamService = inject(SteamService);
   private readonly router = inject(Router);
+  private readonly profileImageService = inject(ProfileImageService);
+  private readonly apiService = inject(ApiService);
 
   // User data
   userProfile: KeycloakProfile = {};
   authenticated = false;
+  profileImageUrl: string | null = null;
   
   // Steam integration
   steamIds: SteamId[] = [];
@@ -106,40 +113,39 @@ export class ProfileComponent implements OnInit, OnDestroy {
     });
   }
 
-async ngOnInit() {
-  // Verifica se há parâmetros de retorno do Steam na URL
-  const urlParams = new URLSearchParams(window.location.search);
-  
-  if (urlParams.has('steam_success')) {
-    const status = urlParams.get('status');
-    let message = 'Conta Steam conectada com sucesso!';
-    if (status === 'existing') {
-      message = 'Esta conta Steam já estava vinculada';
-    } else if (status === 'conflict') {
-      message = 'Esta conta Steam já está vinculada a outro usuário';
+  async ngOnInit() {
+    // Verifica se há parâmetros de retorno do Steam na URL
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    if (urlParams.has('steam_success')) {
+      const status = urlParams.get('status');
+      let message = 'Conta Steam conectada com sucesso!';
+      if (status === 'existing') {
+        message = 'Esta conta Steam já estava vinculada';
+      } else if (status === 'conflict') {
+        message = 'Esta conta Steam já está vinculada a outro usuário';
+      }
+      this.snackBar.open(message, 'Fechar', { duration: 5000 });
+      
+      // Limpa os parâmetros da URL
+      this.router.navigate([], { replaceUrl: true });
+    } else if (urlParams.has('steam_error')) {
+      const error = urlParams.get('steam_error');
+      const errorMessages: { [key: string]: string } = {
+        'missing_params': 'Parâmetros de autenticação não encontrados',
+        'network_error': 'Erro de conexão com o servidor',
+        'default': 'Falha ao conectar conta Steam'
+      };
+      const message = errorMessages[error || ''] 
+        || decodeURIComponent(error || errorMessages['default']);
+      this.snackBar.open(message, 'Fechar', { duration: 5000 });
+      
+      // Limpa os parâmetros da URL
+      this.router.navigate([], { replaceUrl: true });
     }
-    this.snackBar.open(message, 'Fechar', { duration: 5000 });
     
-    // Limpa os parâmetros da URL
-    this.router.navigate([], { replaceUrl: true });
-  } else if (urlParams.has('steam_error')) {
-    const error = urlParams.get('steam_error');
-    const errorMessages: { [key: string]: string } = {
-      'missing_params': 'Parâmetros de autenticação não encontrados',
-      'network_error': 'Erro de conexão com o servidor',
-      'default': 'Falha ao conectar conta Steam'
-    };
-    const message = errorMessages[error || ''] 
-      || decodeURIComponent(error || errorMessages['default']);
-    this.snackBar.open(message, 'Fechar', { duration: 5000 });
-    
-    // Limpa os parâmetros da URL
-    this.router.navigate([], { replaceUrl: true });
+    await this.initializeComponent();
   }
-  
-  await this.initializeComponent();
-}
-
 
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
@@ -162,6 +168,19 @@ async ngOnInit() {
       try {
         this.userProfile = await this.keycloak.loadUserProfile();
         this.loadSteamIds();
+        
+        // Carrega o perfil completo do usuário incluindo a URL da imagem
+        this.apiService.getUserProfile().subscribe({
+          next: (profile) => {
+            if (profile.profile_image_url) {
+              this.profileImageUrl = profile.profile_image_url;
+              this.profileImageService.setProfileImageUrl(profile.profile_image_url);
+            }
+          },
+          error: (error) => {
+            console.error('Erro ao carregar perfil completo:', error);
+          }
+        });
       } catch (error) {
         console.error('Failed to load user profile:', error);
         throw error;
@@ -181,6 +200,14 @@ async ngOnInit() {
       this.steamService.loading$.subscribe({
         next: (loading) => this.steamLoading = loading,
         error: (error) => console.error('Loading subscription error:', error)
+      })
+    );
+    
+    // Inscreve-se nas mudanças da imagem de perfil
+    this.subscriptions.add(
+      this.profileImageService.profileImageUrl$.subscribe({
+        next: (url) => this.profileImageUrl = url,
+        error: (error) => console.error('Profile image subscription error:', error)
       })
     );
   }
@@ -313,11 +340,24 @@ async ngOnInit() {
     this.phoneForm.reset({ phone_type: 'mobile' });
   }
 
+  // Profile image methods
+  onImageUploaded(imageUrl: string): void {
+    this.profileImageUrl = imageUrl;
+    this.snackBar.open('Foto de perfil atualizada com sucesso!', 'Fechar', { duration: 3000 });
+  }
+
+  onImageRemoved(): void {
+    this.profileImageUrl = null;
+    this.snackBar.open('Foto de perfil removida com sucesso!', 'Fechar', { duration: 3000 });
+  }
+
   // Utility methods
   private handleLogout(): void {
     this.authenticated = false;
     this.userProfile = {};
     this.steamIds = [];
+    this.profileImageUrl = null;
+    this.profileImageService.clearState();
   }
 
   private showSnackbar(message: string): void {

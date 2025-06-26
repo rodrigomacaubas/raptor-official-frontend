@@ -132,7 +132,7 @@ export class ApiService {
 
   // User profile methods (for future use)
   getUserProfile(): Observable<any> {
-    return this.get('/user/profile');
+    return this.get('/url/user-profile');
   }
 
   updateUserProfile(profileData: any): Observable<any> {

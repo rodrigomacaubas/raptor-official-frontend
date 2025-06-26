@@ -218,3 +218,20 @@
         gap: 12px;
       }
     }
+
+  .profile-avatar.has-image {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: transparent;
+  }
+
+  .profile-avatar.has-image span {
+    display: none;
+  }
+
+  .my-4 {
+    margin: 24px 0;
+  }
+
+  
